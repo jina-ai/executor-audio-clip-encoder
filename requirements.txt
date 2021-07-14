@@ -1,5 +1,5 @@
 ftfy==6.0.3
-jina==2.0.4
+jina==2.0.5
 librosa==0.8.0
 matplotlib==3.4.2
 matplotlib-inline==0.1.2
