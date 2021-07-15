@@ -88,6 +88,8 @@ class AudioCLIP(CLIP):
             pretrained=False
         )
 
+        self.audio.eval()
+
         self.multilabel = multilabel
         self.pretrained = pretrained
 
