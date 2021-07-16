@@ -1,4 +1,4 @@
-FROM jinaai/jina:2.0.5
+FROM jinaai/jina:2.0.7
 
 # install git
 RUN apt-get -y update && apt-get install -y git wget && apt-get install -y libsndfile-dev
