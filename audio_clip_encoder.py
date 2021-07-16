@@ -13,8 +13,8 @@ from utils.transforms import ToTensor1D
 class AudioCLIPEncoder(Executor):
     """
      Encode audio data with AudioCLIP embeddings
-     :param model_path: path of the pre-trained AudioCLP model
-     :param default_traversal_paths: fallback batch size in case there is not batch size sent in the request
+     :param model_path: path of the pre-trained AudioCLIP model
+     :param default_traversal_paths: default traversal path
      """
 
     def __init__(self,

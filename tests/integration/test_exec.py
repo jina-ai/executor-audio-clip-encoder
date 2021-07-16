@@ -6,7 +6,7 @@ import librosa
 import numpy as np
 
 from jina import Flow, Document, DocumentArray
-from  audio_clip_encoder import AudioCLIPEncoder
+from audio_clip_encoder import AudioCLIPEncoder
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
