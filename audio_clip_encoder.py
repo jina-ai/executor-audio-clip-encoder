@@ -27,6 +27,8 @@ class AudioCLIPEncoder(Executor):
         torch.set_grad_enabled(False)
         self.model_path = model_path
         self.aclp = AudioCLIP(pretrained=model_path)
+        self.aclp.eval()
+        self.aclp.audio.eval()
         self.audio_transforms = ToTensor1D()
         self.default_traversal_paths = default_traversal_paths
         self.default_batch_size = default_batch_size
