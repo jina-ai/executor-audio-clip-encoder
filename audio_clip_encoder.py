@@ -58,8 +58,7 @@ class AudioCLIPEncoder(Executor):
 
         for document_batch in document_batches_generator:
             audio = torch.stack([self.audio_transforms(d.blob.reshape(1, -1)) for d in document_batch])
-            ((embedding_batch, _, _), _), _ = self.aclp(audio=audio)
-            embedding_batch = embedding_batch / torch.linalg.norm(embedding_batch, dim=-1, keepdim=True)
+            embedding_batch = self.aclp.encode_audio(audio=audio)
             numpy_embedding_batch = embedding_batch.cpu().numpy()
             for document, numpy_embedding in zip(document_batch, numpy_embedding_batch):
                 document.embedding = numpy_embedding
