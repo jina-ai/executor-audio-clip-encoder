@@ -20,10 +20,22 @@ def test_flow_from_yml():
 
 def test_embedding_exists():
 
-    x_audio, sample_rate = librosa.load(os.path.join(cur_dir, '../data/sample.mp3'))
+    x_audio, _ = librosa.load(os.path.join(cur_dir, '../data/sample.mp3'))
     doc = DocumentArray([Document(blob=x_audio)])
 
     with Flow.load_config(os.path.join(cur_dir, 'flow.yml')) as f:
         responses = f.post(on='index', inputs=doc, return_results=True)
 
-    assert responses[0].docs[0].embedding is not None
+    assert responses[0].docs[0].embedding is not None and responses[0].docs[0].embedding.shape == (1024, )
+
+
+def test_many_documents():
+
+    audio1, _ = librosa.load(os.path.join(cur_dir, '../data/sample.mp3'))
+    audio2, _ = librosa.load(os.path.join(cur_dir, '../data/sample.wav'))
+    doc = DocumentArray([Document(blob=audio1), Document(blob=audio2)])
+
+    with Flow.load_config(os.path.join(cur_dir, 'flow.yml')) as f:
+        responses = f.post(on='index', inputs=doc, return_results=True)
+
+    assert responses[0].docs[0].embedding.shape == (1024, ) and responses[0].docs[1].embedding.shape == (1024, )
