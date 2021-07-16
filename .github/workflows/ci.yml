@@ -10,6 +10,6 @@ jobs:
         uses: actions/checkout@v2
       - id: tests
         run: |
-          sudo apt-get install libsndfile-dev
+          sudo apt-get install libsndfile-dev ffmpeg
           ./scripts/download_model.sh
           ./scripts/tests.sh
