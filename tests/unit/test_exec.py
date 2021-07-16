@@ -21,4 +21,4 @@ def test_embedding_dimension():
     doc = DocumentArray([Document(blob=x_audio)])
     model = AudioCLIPEncoder()
     model.encode(doc, parameters={})
-    assert doc[0].embedding.shape == (1, 1024)
+    assert doc[0].embedding.shape == (1024, )
