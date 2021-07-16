@@ -11,4 +11,5 @@ jobs:
       - id: tests
         run: |
           sudo apt-get install libsndfile-dev
+          ./scripts/download_model.sh
           ./scripts/tests.sh
