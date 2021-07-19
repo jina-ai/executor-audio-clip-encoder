@@ -31,8 +31,8 @@ def test_many_documents():
     audio2, _ = librosa.load(os.path.join(cur_dir, '../data/sample.wav'))
     docs = DocumentArray([Document(blob=audio1), Document(blob=audio2)])
 
-    model = AudioCLIPEncoder()
-    model.encode(docs, parameters={})
+    encoder = AudioCLIPEncoder()
+    encoder.encode(docs, parameters={})
 
     assert docs[0].embedding.shape == (1024, ) and docs[1].embedding.shape == (1024, )
 
@@ -65,9 +65,9 @@ def test_traversal_paths():
         )
     ])
 
-    model = AudioCLIPEncoder(default_traversal_paths=['c'])
-    model.encode(docs, parameters={})
-    model.encode(docs, parameters={'traversal_paths': ['cc']})
+    encoder = AudioCLIPEncoder(default_traversal_paths=['c'])
+    encoder.encode(docs, parameters={})
+    encoder.encode(docs, parameters={'traversal_paths': ['cc']})
     for path, count in [['r', 0], ['c', 6], ['cc', 3]]:
         embeddings = DocumentArray(docs).traverse_flat([path]).get_attributes('embedding')
         assert all(
