@@ -34,7 +34,8 @@ def test_many_documents():
     encoder = AudioCLIPEncoder()
     encoder.encode(docs, parameters={})
 
-    assert docs[0].embedding.shape == (1024, ) and docs[1].embedding.shape == (1024, )
+    assert docs[0].embedding.shape == (1024, )
+    assert docs[1].embedding.shape == (1024, )
 
 
 def test_traversal_paths():
@@ -73,4 +74,5 @@ def test_traversal_paths():
         assert all(
             embedding.shape == (1024,)
             for embedding in embeddings
-        ) and len(embeddings) == count
+        )
+        assert len(embeddings) == count

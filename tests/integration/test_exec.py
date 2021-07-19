@@ -26,4 +26,5 @@ def test_embedding_exists():
     with Flow.load_config(os.path.join(cur_dir, 'flow.yml')) as f:
         responses = f.post(on='index', inputs=doc, return_results=True)
 
-    assert responses[0].docs[0].embedding is not None and responses[0].docs[0].embedding.shape == (1024, )
+    assert responses[0].docs[0].embedding is not None
+    assert responses[0].docs[0].embedding.shape == (1024, )
