@@ -56,4 +56,4 @@ class AudioCLIPEncoder(Executor):
         for d in filtered_docs:
             audio = torch.Tensor(d.blob).unsqueeze(0)
             embedding = self.aclp.encode_audio(audio=audio)[0]
-            d.embedding = embedding.numpy()
+            d.embedding = embedding.cpu().numpy()
