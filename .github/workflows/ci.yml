@@ -9,4 +9,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - id: tests
-        run: ./scripts/tests.sh
+        run: |
+          sudo apt-get install libsndfile-dev ffmpeg
+          ./scripts/download_model.sh
+          ./scripts/tests.sh
