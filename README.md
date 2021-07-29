@@ -1,3 +1,4 @@
+# Moved to https://github.com/jina-ai/executors/tree/main/jinahub/encoders/audio/AudioCLIPEncoder
 
 # ✨ AudioCLIPEncoder
 
