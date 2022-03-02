@@ -168,17 +168,17 @@ def test_traversal_paths():
     for path, count in [['@r', 0], ['@c', 6], ['@cc', 3]]:
         embeddings = [
             embedding
-            for embedding in DocumentArray(docs)[path].embeddings
+            for embedding in DocumentArray(docs[path]).embeddings
             if embedding is not None
         ]
 
         sample_rates = {
-            doc.tags['sample_rate'] for doc in DocumentArray(docs)[path]
+            doc.tags['sample_rate'] for doc in DocumentArray(docs[path])
         }
 
         assert all(embedding.shape == (1024,) for embedding in embeddings)
         assert len(embeddings) == count
-        if path != 'r':
+        if path != '@r':
             assert (
                 len(sample_rates) == 1
                 and sample_rates.pop() == AudioCLIPEncoder.TARGET_SAMPLE_RATE
@@ -215,10 +215,10 @@ def test_batch_size(encoder: AudioCLIPEncoder, batch_size: int):
 @pytest.mark.parametrize(
     "traversal_paths, counts",
     [
-        [('@c',), (('@r', 0), ('@c', 3), ('@cc', 0))],
-        [('@cc',), (('@r', 0), ('@c', 0), ('@cc', 2))],
-        [('@r',), (('@r', 1), ('@c', 0), ('@cc', 0))],
-        [('@cc,r'), (('@r', 1), ('@c', 0), ('@cc', 2))],
+        ['@c', (('@r', 0), ('@c', 3), ('@cc', 0))],
+        ['@cc', (('@r', 0), ('@c', 0), ('@cc', 2))],
+        ['@r', (('@r', 1), ('@c', 0), ('@cc', 0))],
+        ['@cc,r', (('@r', 1), ('@c', 0), ('@cc', 2))],
     ],
 )
 def test_traversal_path(
