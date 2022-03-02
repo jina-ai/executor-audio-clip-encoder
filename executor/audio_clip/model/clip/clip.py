@@ -12,10 +12,10 @@ from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normal
 from tqdm import tqdm
 
 from .model import build_model
-from utils.simple_tokenizer import SimpleTokenizer as _Tokenizer
+from ...utils.simple_tokenizer import SimpleTokenizer as _Tokenizer
 
 __all__ = ["available_models", "load", "tokenize"]
-_tokenizer = _Tokenizer()
+_tokenizer = None
 
 _MODELS = {
     "RN50": "https://openaipublic.azureedge.net/clip/models/afeb0e10f9e5a86da6080e35cf09123aca3b358a0c3e3b6c78a7b63bc04b6762/RN50.pt",
@@ -157,6 +157,9 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
         patch_float(model.encode_text)
 
         model.float()
+
+    global _tokenizer
+    _tokenizer = _Tokenizer()
 
     return model, _transform(model.input_resolution.item())
 
