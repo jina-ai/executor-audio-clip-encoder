@@ -162,9 +162,9 @@ def test_traversal_paths():
         ]
     )
 
-    encoder = AudioCLIPEncoder(traversal_paths=['@c'])
+    encoder = AudioCLIPEncoder(traversal_paths='@c')
     encoder.encode(docs, parameters={})
-    encoder.encode(docs, parameters={'traversal_paths': ['@cc']})
+    encoder.encode(docs, parameters={'traversal_paths': '@cc'})
     for path, count in [['@r', 0], ['@c', 6], ['@cc', 3]]:
         embeddings = [
             embedding
