@@ -150,25 +150,7 @@ def test_traversal_path(
     counts: Tuple[str, int],
     encoder: AudioCLIPEncoder,
 ):
-    audio1, sample_rate1 = librosa.load(
-        str(Path(__file__).parents[1] / 'test_data/sample.mp3')
-    )
-    audio2, sample_rate2 = librosa.load(
-        str(Path(__file__).parents[1] / 'test_data/sample.wav')
-    )
-
-    audio1_chunks = np.split(audio1, 3)
-    audio2_chunks = np.split(audio2, 2)
-    docs = DocumentArray([Document(id='root1', tensor=audio1)])
-    docs[0].chunks = [
-        Document(id='chunk11', tensor=audio1_chunks[0]),
-        Document(id='chunk12', tensor=audio1_chunks[1]),
-        Document(id='chunk13', tensor=audio1_chunks[2]),
-    ]
-    docs[0].chunks[0].chunks = [
-        Document(id='chunk111', tensor=audio2_chunks[0]),
-        Document(id='chunk112', tensor=audio2_chunks[1]),
-    ]
+    docs = nested_docs()
     encoder.encode(docs, parameters={"traversal_paths": traversal_paths})
     for path, count in counts:
         embeddings = DocumentArray(docs[path]).embeddings
