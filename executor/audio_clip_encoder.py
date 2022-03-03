@@ -62,7 +62,7 @@ class AudioCLIPEncoder(Executor):
     @requests
     def encode(
         self,
-        docs: Optional[DocumentArray] = None,
+        docs: DocumentArray = [],
         parameters: dict = {},
         *args,
         **kwargs,

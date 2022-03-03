@@ -21,27 +21,6 @@ def gpu_encoder() -> AudioCLIPEncoder:
     return AudioCLIPEncoder(device='cuda', download_model=True)
 
 
-@pytest.fixture(scope="function")
-def nested_docs() -> DocumentArray:
-    tensor, sample_rate = librosa.load(
-        str(Path(__file__).parents[1] / 'test_data/sample.wav')
-    )
-    docs = DocumentArray(
-        [Document(id="root1", tensor=tensor, tags={'sample_rate': sample_rate})]
-    )
-    docs[0].chunks = [
-        Document(id="chunk11", tensor=tensor, tags={'sample_rate': sample_rate}),
-        Document(id="chunk12", tensor=tensor, tags={'sample_rate': sample_rate}),
-        Document(id="chunk13", tensor=tensor, tags={'sample_rate': sample_rate}),
-    ]
-    docs[0].chunks[0].chunks = [
-        Document(id="chunk111", tensor=tensor, tags={'sample_rate': sample_rate}),
-        Document(id="chunk112", tensor=tensor, tags={'sample_rate': sample_rate}),
-    ]
-
-    return docs
-
-
 def test_config():
     ex = Executor.load_config(str(Path(__file__).parents[2] / 'config.yml'))
     assert ex.model_path.endswith('AudioCLIP-Full-Training.pt')
@@ -150,7 +129,21 @@ def test_traversal_path(
     counts: Tuple[str, int],
     encoder: AudioCLIPEncoder,
 ):
-    docs = nested_docs()
+    tensor, sample_rate = librosa.load(
+        str(Path(__file__).parents[1] / 'test_data/sample.wav')
+    )
+    docs = DocumentArray(
+        [Document(id="root1", tensor=tensor, tags={'sample_rate': sample_rate})]
+    )
+    docs[0].chunks = [
+        Document(id="chunk11", tensor=tensor, tags={'sample_rate': sample_rate}),
+        Document(id="chunk12", tensor=tensor, tags={'sample_rate': sample_rate}),
+        Document(id="chunk13", tensor=tensor, tags={'sample_rate': sample_rate}),
+    ]
+    docs[0].chunks[0].chunks = [
+        Document(id="chunk111", tensor=tensor, tags={'sample_rate': sample_rate}),
+        Document(id="chunk112", tensor=tensor, tags={'sample_rate': sample_rate}),
+    ]
     encoder.encode(docs, parameters={"traversal_paths": traversal_paths})
     for path, count in counts:
         embeddings = DocumentArray(docs[path]).embeddings
