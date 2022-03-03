@@ -25,8 +25,8 @@ def test_embedding_exists():
 
     with Flow().add(uses=AudioCLIPEncoder) as f:
         responses = f.post(on='index', inputs=doc, return_results=True)
-        assert responses[0].docs[0].embedding is not None
-        assert responses[0].docs[0].embedding.shape == (1024,)
+        assert responses[0].embedding is not None
+        assert responses[0].embedding.shape == (1024,)
 
 
 @pytest.mark.docker
