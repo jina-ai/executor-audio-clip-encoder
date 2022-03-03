@@ -149,6 +149,6 @@ def test_traversal_path(
         embeddings = docs[path].embeddings
         if count != 0 :
             assert len([em for em in embeddings if em is not None]) == count
+            assert all(embedding.shape == (1024,) for embedding in embeddings)
         else:
             assert embeddings is None
-        assert all(embedding.shape == (1024,) for embedding in embeddings)
