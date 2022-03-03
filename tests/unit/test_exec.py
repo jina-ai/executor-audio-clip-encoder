@@ -147,5 +147,8 @@ def test_traversal_path(
     encoder.encode(docs, parameters={"traversal_paths": traversal_paths})
     for path, count in counts:
         embeddings = docs[path].embeddings
-        assert len([em for em in embeddings if em is not None]) == count
+        if count != 0 :
+            assert len([em for em in embeddings if em is not None]) == count
+        else:
+            assert embeddings is None
         assert all(embedding.shape == (1024,) for embedding in embeddings)
