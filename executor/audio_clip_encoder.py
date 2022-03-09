@@ -1,14 +1,14 @@
 __copyright__ = 'Copyright (c) 2020-2021 Jina AI Limited. All rights reserved.'
 __license__ = 'Apache-2.0'
 
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable
 
 import librosa as lr
 import numpy as np
 import torch
 from jina import DocumentArray, Executor, requests
 
-from .audio_clip.model import AudioCLIP
+from audio_clip.model import AudioCLIP
 
 
 class AudioCLIPEncoder(Executor):
