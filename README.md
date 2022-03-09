@@ -1,150 +1,72 @@
-# Moved to https://github.com/jina-ai/executors/tree/main/jinahub/encoders/audio/AudioCLIPEncoder
+# AudioCLIPEncoder
 
-# ✨ AudioCLIPEncoder
+**AudioCLIPEncoder** is a class that wraps the [AudioCLIP](https://github.com/AndreyGuzhov/AudioCLIP) model for generating embeddings for audio data .
 
-**AudioCLIPEncoder** is a class that wraps the [AudioCLIP](https://github.com/AndreyGuzhov/AudioCLIP) model for generating embeddings for audio data. 
+Before using it, please check the [prerequisites](#prerequisites).
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+This encoder is meant to be used in conjunction with the [AudioCLIPTextEncoder](https://hub.jina.ai/executor/jfe8kovq) and [AudioCLIPImageEncoder](https://hub.jina.ai/executor/3atsazub), as they embed text, images and audio to the same latent space.
 
-- [🌱 Prerequisites](#-prerequisites)
-- [🚀 Usages](#-usages)
-- [🎉️ Example](#%EF%B8%8F-example)
-- [🔍️ Reference](#%EF%B8%8F-reference)
+You can either use the `Full` (where all three heads were trained) or the `Partial` (where the text and image heads were frozen) versions of the model.
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+For more information, such as how to run an Executor on a GPU, check [this guide](https://docs.jina.ai/tutorials/gpu-executor/).
 
-## 🌱 Prerequisites
+## Prerequisites
 
-Run the provided bash script `scripts/download_model.sh` to download the pretrained model.
+> This should be met if 1) you are using `'jinahub+docker://'` syntax, or 2) leave `'download_model'` set to `False` (default value)
 
-## 🚀 Usages
+First, you should download the model and the vocabulary, which will be saved into the `.cache` folder inside your
+current directory (will be created if it does not exist yet).
 
-### 🚚 Via JinaHub
+To do this, copy the `scripts/download_full.sh` script to your current directory and execute it:
 
-#### using docker images
-Use the prebuilt images from JinaHub in your python codes, 
+```shell
+wget https://raw.githubusercontent.com/jina-ai/executors/main/jinahub/encoders/image/AudioCLIPImageEncoder/scripts/download_full.sh && chmod +x download_full.sh
+./download_full.sh
+```
+
+This will download the `Full` version of the model (this is the default model used by the executor. 
+If you instead want to download the `Partial` version of the model, execute:
+
+```shell
+wget https://raw.githubusercontent.com/jina-ai/executors/main/jinahub/encoders/image/AudioCLIPImageEncoder/scripts/download_partial.sh && chmod +x download_partial.sh
+./download_partial.sh
+```
+
+And then you will also need to pass the argument `model_path='.cache/AudioCLIP-Full-Training.pt'` when you initialize the executor, like so:
 
 ```python
-from jina import Flow
-	
-f = Flow().add(uses='jinahub+docker://AudioCLIPEncoder')
+with Flow().add(
+        uses='jinahub://AudioCLIPTextEncoder',
+        uses_with={
+            'model_path': '.cache/AudioCLIP-Full-Training.pt'
+        }
+)
 ```
 
-or in the `.yml` config.
-```yaml
-jtype: Flow
-pods:
-  - name: encoder
-    uses: 'jinahub+docker://AudioCLIPEncoder'
-```
+Replace 'Full' with 'Partial' if you downloaded that model.
 
-#### using source codes
-Use the source codes from JinaHub in your python codes,
+### Usage within Docker
+
+If you are using the Executor within Docker, you need to mount the local model directory and tell the Executor where to find it, like so:
 
 ```python
-from jina import Flow
-	
-f = Flow().add(uses='jinahub://AudioCLIPEncoder')
+with Flow().add(
+        uses='jinahub+docker://AudioCLIPTextEncoder',
+        uses_with={
+            'model_path': '/tmp/.cache/AudioCLIP-Full-Training.pt',
+        },
+        volumes='.cache:/tmp/.cache',
+)
 ```
 
-or in the `.yml` config.
+## See also
 
-```yaml
-jtype: Flow
-pods:
-  - name: encoder
-    uses: 'jinahub://AudioCLIPEncoder'
-```
+- [AudioCLIPTextEncoder](https://hub.jina.ai/executor/jfe8kovq)
+- [AudioCLIPImageEncoder](https://hub.jina.ai/executor/3atsazub)
 
+## References
 
-### 📦️ Via Pypi
-
-1. Install the `jinahub-AudioCLIPEncoder` package.
-
-	```bash
-	pip install git+https://github.com/jina-ai/executor-audio-clip-encoder.git
-	```
-
-1. Use `jinahub-vggishaudio-encoder` in your code
-
-	```python
-	from jina import Flow
-	from jinahub.encoder.audioclip import AudioCLIPEncoder
-	
-	f = Flow().add(uses='jinahub+docker://AudioCLIPEncoder')
-	```
-
-
-### 🐳 Via Docker
-
-1. Clone the repo and build the docker image
-
-	```shell
-	git clone https://github.com/jina-ai/executor-audio-clip-encoder.git
-	cd executor-audio-clip-encoder
-	docker build -t executor-audio-clip-encoder .
-	```
-
-1. Use `executor-audio-clip-encoder` in your codes
-
-	```python
-	from jina import Flow
-	
-	f = Flow().add(uses='docker://executor-audio-clip-encoder:latest')
-	```
-
-## 🎉️ Example 
-
-With fake data
-
-```python
-import numpy as np
-from jina import Flow, Document, DocumentArray
-
-f = Flow().add(uses='jinahub+docker://AudioCLIPEncoder', timeout_ready=3000)
-
-fake_log_mel_examples = np.random.random((2,96,64))
-doc_array = DocumentArray([Document(blob=fake_log_mel_examples)])
-
-with f:
-    resp = f.post(on='test', inputs=doc_array, return_results=True)
-		print(f'{resp}')
-```
-
-Example with real data
-
-
-```python
-import librosa
-from jina import Flow, Document, DocumentArray
-
-f = Flow().add(uses='jinahub+docker://AudioCLIPEncoder', timeout_ready=3000)
-
-# Load data
-x_audio, sample_rate = librosa.load('./data/sample.wav')
-doc_array = DocumentArray([Document(blob=x_audio)])
-
-with f:
-    resp = f.post(on='test', inputs=doc_array, return_results=True)
-    
-print(f'{resp}')
-```
-
-
-
-
-
-### Inputs 
-
-`Document` with `blob` of containing loaded audio.
-
-### Returns
-
-`Document` with `embedding` fields filled with an `ndarray` of the shape `embedding_dim` with `dtype=nfloat32`.
-
-
-## 🔍️ Reference
 - [AudioCLIP paper](https://arxiv.org/abs/2106.13043)
-- [AudioCLIP code](https://github.com/AndreyGuzhov/AudioCLIP)
+- [AudioCLIP GitHub Repository](https://github.com/AndreyGuzhov/AudioCLIP)
+
+<!-- version=v0.5 -->

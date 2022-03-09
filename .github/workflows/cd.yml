@@ -4,16 +4,15 @@ on:
   push:
     branches:
       - main
+  release:
+    types:
+      - created
   workflow_dispatch:
 
 jobs:
-  push-hub:
-    runs-on: ubuntu-latest
-    container:
-      image: jinaai/jina:master-standard
-      options: "--entrypoint /bin/bash"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - id: push
-        run: jina hub push --force ${{ secrets.HUBBLE_UUID }} --secret ${{ secrets.HUBBLE_SECRET }} .
+  call-external:
+    uses: jina-ai/workflows-executors/.github/workflows/cd.yml@v0.3
+    with:
+      event_name: ${{ github.event_name }}
+    secrets:
+      secret: ${{ secrets.EXECUTOR_SECRET }}
