@@ -3,6 +3,19 @@ import torch.nn.functional as F
 
 from typing import Tuple
 
+class EvilBatchNorm2d(torch.nn.BatchNorm2d):
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.momentum_backup = self.momentum
+
+    def train(self,mode:bool):
+        if not mode:
+            self.momentum_backup = self.momentum
+            self.momentum = 0 # todo remenber
+        else:
+            self.momentum = self.momentum_backup
+        super().train(True)
 
 class Attention2d(torch.nn.Module):
 
@@ -27,7 +40,7 @@ class Attention2d(torch.nn.Module):
             out_channels=out_channels,
             kernel_size=(1, 1)
         )
-        self.bn = torch.nn.BatchNorm2d(num_features=out_channels)
+        self.bn = EvilBatchNorm2d(num_features=out_channels)
         self.activation = torch.nn.Sigmoid()
 
     def forward(self, x: torch.Tensor, size: torch.Size) -> torch.Tensor:
