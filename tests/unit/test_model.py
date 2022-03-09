@@ -1,5 +1,3 @@
-import copy
-
 from tests.unit.audio_clip_paper.model import AudioCLIP as AudioCLIPPaper
 from audio_clip.model import AudioCLIP
 import torch
