@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch import Tensor
 
 from typing import Tuple
 
@@ -7,15 +8,14 @@ class EvilBatchNorm2d(torch.nn.BatchNorm2d):
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.momentum_backup = self.momentum
+        self.running_var = None
+        self.running_mean = None
 
-    def train(self,mode:bool):
-        if not mode:
-            self.momentum_backup = self.momentum
-            self.momentum = 0 # todo remenber
-        else:
-            self.momentum = self.momentum_backup
-        super().train(True)
+    def forward(self, input: Tensor) -> Tensor:
+        if input.shape[0] == 1:
+            input = input.expand(2,-1,-1,-1)
+
+        return super().forward(input)
 
 class Attention2d(torch.nn.Module):
 
