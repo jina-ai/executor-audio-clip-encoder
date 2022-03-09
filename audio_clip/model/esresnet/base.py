@@ -145,7 +145,6 @@ class Bottleneck(torch.nn.Module):
         self.stride = stride
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        #print(f'Bottleneck input: {x.flatten()[:5]}')
         identity = x
 
         out = self.conv1(x)
@@ -165,7 +164,6 @@ class Bottleneck(torch.nn.Module):
         out += identity
         out = self.relu(out)
 
-        #print(f'Bottleneck: {out.flatten()[:5]}')
         return out
 
 
@@ -333,9 +331,7 @@ class ResNetWithAttention(torch.nn.Module):
 
     def _forward_pre_features(self, x: torch.Tensor) -> torch.Tensor:
         x = self.conv1(x)
-        print(f'pre batch : {x.flatten()[0:5]}')
         x = self.bn1(x)
-        print(f'batch  : {x.flatten()[0:5]}')
         x = self.relu(x)
         x = self.maxpool(x)
 
@@ -402,27 +398,8 @@ class ResNetWithAttention(torch.nn.Module):
         if y is not None:
             loss = self.loss_fn(y_pred, y).mean()
 
-        print(f'ResnetWithAttention: {x.flatten()[:5]}')
         return y_pred if loss is None else (y_pred, loss)
 
-    # def loss_fn(self, y_pred: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-    #     if isinstance(y_pred, tuple):
-    #         y_pred, *_ = y_pred
-    #
-    #     if y_pred.shape == y.shape:
-    #         loss_pred = F.binary_cross_entropy_with_logits(
-    #             y_pred,
-    #             y.to(dtype=y_pred.dtype, device=y_pred.device),
-    #             reduction='sum'
-    #         ) / y_pred.shape[0]
-    #     else:
-    #         loss_pred = F.cross_entropy(y_pred, y.to(y_pred.device))
-    #
-    #     return loss_pred
-
-    # @property
-    # def loss_fn_name(self) -> str:
-    #     return 'Cross Entropy'
 
 
 class _ESResNet(ResNetWithAttention):

@@ -135,7 +135,6 @@ class AudioCLIP(CLIP):
         audio_features = None
         image_features = None
         text_features = None
-        sample_weights = None
 
         if audio is not None:
             audio_features = self.encode_audio(audio)
@@ -153,18 +152,6 @@ class AudioCLIP(CLIP):
 
             text_features = self.encode_text(text, '{}', batch_indices)
             text_features = text_features / text_features.norm(dim=-1, keepdim=True)
-
-            if hasattr(self, 'class_weights') and hasattr(self, 'label_to_class_idx'):
-                sample_weights = torch.stack(
-                    [
-                        sum(
-                            self.class_weights[self.label_to_class_idx[label]]
-                            for label in entities
-                        )
-                        for idx, entities in enumerate(text)
-                        if idx in batch_indices
-                    ]
-                )
 
         features: ClipFeatures = (audio_features, image_features, text_features)
 
@@ -187,65 +174,5 @@ class AudioCLIP(CLIP):
 
         logits: ClipLogits = (logits_audio_image, logits_audio_text, logits_image_text)
 
-        loss = self.loss_fn(logits, sample_weights)
-        if audio is not None and loss is not None:
-            loss = loss + self.audio.loss_ttf(self.device)
 
-        return (features, logits), loss
-
-    def loss_fn(
-        self, logits: ClipLogits, sample_weights: Optional[torch.Tensor] = None
-    ) -> Optional[torch.Tensor]:
-        logits_audio_image, logits_audio_text, logits_image_text = logits
-
-        if logits_audio_image is not None:
-            batch_size = logits_audio_image.shape[0]
-        elif logits_audio_text is not None:
-            batch_size = logits_audio_text.shape[0]
-        elif logits_image_text is not None:
-            batch_size = logits_image_text.shape[0]
-        else:
-            return None
-
-        reference = torch.arange(batch_size, dtype=torch.int64, device=self.device)
-
-        loss = torch.tensor(0.0, dtype=self.dtype, device=self.device)
-
-        num_modalities: int = 0
-        scale = torch.tensor(1.0, dtype=self.dtype, device=self.device)
-
-        if logits_audio_image is not None:
-            loss_ai = F.cross_entropy(
-                logits_audio_image, reference, weight=sample_weights
-            ) + F.cross_entropy(
-                logits_audio_image.transpose(-1, -2), reference, weight=sample_weights
-            )
-            loss = loss + loss_ai
-            num_modalities += 1
-
-        if logits_audio_text is not None:
-            loss_at = F.cross_entropy(
-                logits_audio_text, reference, weight=sample_weights
-            ) + F.cross_entropy(
-                logits_audio_text.transpose(-1, -2), reference, weight=sample_weights
-            )
-            loss = loss + loss_at
-            num_modalities += 1
-
-        if logits_image_text is not None:
-            loss_it = F.cross_entropy(
-                logits_image_text, reference, weight=sample_weights
-            ) + F.cross_entropy(
-                logits_image_text.transpose(-1, -2), reference, weight=sample_weights
-            )
-            loss = loss + loss_it
-            num_modalities += 1
-
-        for idx in range(num_modalities):
-            scale = scale * (idx + 1)
-
-        return loss / scale
-
-    @property
-    def loss_fn_name(self) -> str:
-        return 'Cross Entropy'
+        return (features, logits), None

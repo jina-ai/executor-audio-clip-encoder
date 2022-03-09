@@ -135,7 +135,6 @@ class LinearFBSP(torch.nn.Module):
         if (self.bias is not None) and (self.bias.numel() == (self.out_features * 2)):
             x = x + self.bias
 
-        # print(f'LinearFBSP: {x.flatten()[:5]}')
         return x, weights
 
     def extra_repr(self) -> str:

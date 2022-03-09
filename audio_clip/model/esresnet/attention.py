@@ -4,27 +4,29 @@ from torch import Tensor
 
 from typing import Tuple
 
-class EvilBatchNorm2d(torch.nn.BatchNorm2d):
 
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
+class EvilBatchNorm2d(torch.nn.BatchNorm2d):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.running_var = None
         self.running_mean = None
 
     def forward(self, input: Tensor) -> Tensor:
         if input.shape[0] == 1:
-            input = input.expand(2,-1,-1,-1)
+            input = input.expand(2, -1, -1, -1)
 
         return super().forward(input)
 
-class Attention2d(torch.nn.Module):
 
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 num_kernels: int,
-                 kernel_size: Tuple[int, int],
-                 padding_size: Tuple[int, int]):
+class Attention2d(torch.nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        num_kernels: int,
+        kernel_size: Tuple[int, int],
+        padding_size: Tuple[int, int],
+    ):
 
         super(Attention2d, self).__init__()
 
@@ -33,12 +35,12 @@ class Attention2d(torch.nn.Module):
             out_channels=in_channels * num_kernels,
             kernel_size=kernel_size,
             padding=padding_size,
-            groups=in_channels
+            groups=in_channels,
         )
         self.conv_point = torch.nn.Conv2d(
             in_channels=in_channels * num_kernels,
             out_channels=out_channels,
-            kernel_size=(1, 1)
+            kernel_size=(1, 1),
         )
         self.bn = EvilBatchNorm2d(num_features=out_channels)
         self.activation = torch.nn.Sigmoid()
