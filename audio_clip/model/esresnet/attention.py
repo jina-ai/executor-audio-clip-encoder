@@ -6,6 +6,9 @@ from typing import Tuple
 
 
 class EvilBatchNorm2d(torch.nn.BatchNorm2d):
+    """Disables usage of running statistics when in eval mode.
+    This is necessary to maintain the same behavior in train and eval mode; probably due to a mistake during training.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.running_var = None
