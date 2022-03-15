@@ -28,7 +28,7 @@ def test_embedding_exists():
         assert responses[0].embedding is not None
         assert responses[0].embedding.shape == (1024,)
 
-
+@pytest.mark.skip()
 @pytest.mark.docker
 def test_docker_runtime(build_docker_image: str):
     with pytest.raises(subprocess.TimeoutExpired):
