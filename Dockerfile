@@ -1,4 +1,4 @@
-FROM jinaai/jina:3-py37-perf
+FROM jinaai/jina:3-py37
 
 # install git
 RUN apt-get -y update && apt-get install -y wget ffmpeg libsndfile-dev
