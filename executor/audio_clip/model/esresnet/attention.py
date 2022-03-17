@@ -14,11 +14,11 @@ class EvilBatchNorm2d(torch.nn.BatchNorm2d):
         self.running_var = None
         self.running_mean = None
 
-    def forward(self, input: Tensor) -> Tensor:
-        if input.shape[0] == 1:
-            input = input.expand(2, -1, -1, -1)
+    def forward(self, x: Tensor) -> Tensor:
+        if x.shape[0] == 1:
+            x = x.expand(2, -1, -1, -1)
 
-        return super().forward(input)
+        return super().forward(x)
 
 
 class Attention2d(torch.nn.Module):
