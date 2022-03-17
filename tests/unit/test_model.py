@@ -1,5 +1,5 @@
 from tests.unit.audio_clip_paper.model import AudioCLIP as AudioCLIPPaper
-from audio_clip.model import AudioCLIP
+from executor.audio_clip import AudioCLIP
 import torch
 
 import pytest

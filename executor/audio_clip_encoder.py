@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from jina import DocumentArray, Executor, requests
 
-from audio_clip.model import AudioCLIP
+from .audio_clip.model.audioclip import AudioCLIP
 
 
 class AudioCLIPEncoder(Executor):
