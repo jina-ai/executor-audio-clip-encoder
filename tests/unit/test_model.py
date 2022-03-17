@@ -7,7 +7,6 @@ import os
 import librosa
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
-cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 @pytest.fixture()
