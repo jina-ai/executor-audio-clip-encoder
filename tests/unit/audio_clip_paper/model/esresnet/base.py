@@ -8,8 +8,9 @@ import torch.nn.functional as F
 
 import torchvision as tv
 
+from ... import ignite_trainer as it
+
 from . import attention
-from .attention import EvilBatchNorm2d
 from ...utils.transforms import scale
 
 from typing import cast
@@ -18,9 +19,6 @@ from typing import Type
 from typing import Tuple
 from typing import Union
 from typing import Optional
-
-
-
 
 
 def conv3x3(in_planes: int, out_planes: int, stride=1, groups: int = 1, dilation: Union[int, Tuple[int, int]] = 1):
@@ -75,7 +73,7 @@ class BasicBlock(torch.nn.Module):
         super(BasicBlock, self).__init__()
 
         if norm_layer is None:
-            norm_layer = EvilBatchNorm2d
+            norm_layer = torch.nn.BatchNorm2d
         if groups != 1 or base_width != 64:
             raise ValueError('BasicBlock only supports groups=1 and base_width=64')
         if dilation > 1:
@@ -130,7 +128,7 @@ class Bottleneck(torch.nn.Module):
         super(Bottleneck, self).__init__()
 
         if norm_layer is None:
-            norm_layer = EvilBatchNorm2d
+            norm_layer = torch.nn.BatchNorm2d
 
         width = int(planes * (base_width / 64.0)) * groups
 
@@ -167,7 +165,7 @@ class Bottleneck(torch.nn.Module):
         return out
 
 
-class ResNetWithAttention(torch.nn.Module):
+class ResNetWithAttention(it.AbstractNet):
 
     """
     CREDITS: https://github.com/pytorch/vision
@@ -190,7 +188,7 @@ class ResNetWithAttention(torch.nn.Module):
         self.apply_attention = apply_attention
 
         if norm_layer is None:
-            norm_layer = EvilBatchNorm2d
+            norm_layer = torch.nn.BatchNorm2d
 
         self._norm_layer = norm_layer
 
@@ -339,6 +337,7 @@ class ResNetWithAttention(torch.nn.Module):
 
     def _forward_features(self, x: torch.Tensor) -> torch.Tensor:
         x = self._forward_pre_features(x)
+
         if self.apply_attention:
             x_att = x.clone()
             x = self.layer1(x)
@@ -400,6 +399,24 @@ class ResNetWithAttention(torch.nn.Module):
 
         return y_pred if loss is None else (y_pred, loss)
 
+    def loss_fn(self, y_pred: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+        if isinstance(y_pred, tuple):
+            y_pred, *_ = y_pred
+
+        if y_pred.shape == y.shape:
+            loss_pred = F.binary_cross_entropy_with_logits(
+                y_pred,
+                y.to(dtype=y_pred.dtype, device=y_pred.device),
+                reduction='sum'
+            ) / y_pred.shape[0]
+        else:
+            loss_pred = F.cross_entropy(y_pred, y.to(y_pred.device))
+
+        return loss_pred
+
+    @property
+    def loss_fn_name(self) -> str:
+        return 'Cross Entropy'
 
 
 class _ESResNet(ResNetWithAttention):
