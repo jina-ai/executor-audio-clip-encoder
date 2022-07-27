@@ -116,7 +116,7 @@ def test_batch_size(encoder: AudioCLIPEncoder, batch_size: int):
 
 
 @pytest.mark.parametrize(
-    'traversal_paths, counts',
+    'access_paths, counts',
     [
         ['@c', (('@r', 0), ('@c', 3), ('@cc', 0))],
         ['@cc', (('@r', 0), ('@c', 0), ('@cc', 2))],
@@ -125,7 +125,7 @@ def test_batch_size(encoder: AudioCLIPEncoder, batch_size: int):
     ],
 )
 def test_traversal_path(
-    traversal_paths: str,
+    access_paths: str,
     counts: Tuple[str, int],
     encoder: AudioCLIPEncoder,
 ):
@@ -144,7 +144,7 @@ def test_traversal_path(
         Document(id="chunk111", tensor=tensor, tags={'sample_rate': sample_rate}),
         Document(id="chunk112", tensor=tensor, tags={'sample_rate': sample_rate}),
     ]
-    encoder.encode(docs, parameters={"traversal_paths": traversal_paths})
+    encoder.encode(docs, parameters={"access_paths": access_paths})
     for path, count in counts:
         embeddings = docs[path].embeddings
         if count != 0 :
