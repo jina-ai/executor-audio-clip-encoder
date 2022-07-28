@@ -10,6 +10,8 @@ from jina import DocumentArray, Executor, requests
 
 from .audio_clip.model import AudioCLIP
 
+import warnings
+
 
 class AudioCLIPEncoder(Executor):
     """
@@ -21,7 +23,8 @@ class AudioCLIPEncoder(Executor):
     def __init__(
         self,
         model_path: str = '.cache/AudioCLIP-Full-Training.pt',
-        traversal_paths: str = '@r',
+        access_paths: str = '@r',
+        traversal_paths: Optional[str] = None,
         batch_size: int = 32,
         device: str = 'cpu',
         download_model: bool = False,
@@ -30,16 +33,24 @@ class AudioCLIPEncoder(Executor):
     ):
         """
         :param model_path: path of the pre-trained AudioCLIP model
-        :param traversal_paths: default traversal path
+        :param access_paths: default traversal path
+        :param traversal_paths: please use access_paths
         :param device: Torch device string (e.g. 'cpu', 'cuda', 'cuda:2')
         :param download_model: whether to download the model at start-up
         """
+
 
         super().__init__(*args, **kwargs)
         torch.set_grad_enabled(False)
         self.model_path = model_path
         self.device = device
-        self.traversal_paths = traversal_paths
+
+        if traversal_paths is not None:
+            warnings.warn("'traversal_paths' will be deprecated in the future, please use 'access_paths'")
+            self.access_paths = traversal_paths
+        else:
+            self.access_paths = access_paths
+
         self.batch_size = batch_size
 
         if download_model:
@@ -76,16 +87,16 @@ class AudioCLIPEncoder(Executor):
             `tags` of each `Document` must contain `sample_rate` field,
             which has the sample rate of the audio data. The `sample_rate` must be a positive
             scalar value.
-        :param parameters: dictionary to defines the `traversal_paths`.
+        :param parameters: dictionary to defines the `access_paths`.
         """
         if not docs:
             return
 
-        traversal_paths = parameters.get('traversal_paths', self.traversal_paths)
+        access_paths = parameters.get('access_paths', self.access_paths)
         batch_size = parameters.get('batch_size', self.batch_size)
 
         with torch.inference_mode():
-            for batch in docs[traversal_paths].batch(batch_size):
+            for batch in docs[access_paths].batch(batch_size):
                 self._create_embeddings(batch)
 
     def _create_embeddings(self, filtered_docs: Iterable):
